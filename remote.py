@@ -21,12 +21,19 @@ class Input(Thread):
 class Output(Thread):
     def __init__(self, game):
         Thread.__init__(self)
-        self.maze = maze
+        self.game = game
 
     def run(self):
-        for _ in range(1000):
+        for _ in range(1):
             clear()
-            print(str(self.game.maze()).replace('\n', '\r\n'), end='\r\n')
+            maze = self.game.maze.board
+            ghosts = self.game.ghosts
+            pacman = self.game.pacman
+            for ghost in ghosts:
+                maze[ghost.position[0]][ghost.position[1]] = 'G'
+            maze[pacman.position[0]][pacman.position[1]] = 'P'
+            for row in maze:
+                print(''.join(row), end='\r\n')
 
 
 @Pyro4.expose
@@ -55,3 +62,5 @@ class RemoteClient(object):
             with Pyro4.Proxy(listener) as obj:
                 obj.send_msg(id(self), "hey, i miss you")
         print('Sent')
+        out = Output(game)
+        out.start()

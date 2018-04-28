@@ -1,55 +1,51 @@
 from maze import Maze
 from pacman import Pacman
-
+from ghost import Ghost
 
 class Game:
-    def __init__(self, **game_params):
+    def __init__(self, game_params):
         width = game_params["width"]
-        height = game_params["height"] 
-        ghosts  game_params["ghostts"]
+        height = game_params["height"]
+        ghosts = game_params["ghosts"]
         pacman = game_params["pacman"][1]
-        self.arr = []
-        if game_params:
-            self.pacman = Pacman(pacman)
-            self.ghosts = [Ghost(ghost[1]) for ghost in ghosts]
-            self.maze = Maze(width, length, pacman)
-        else:
-            self.pacman = Pacman(1, 1)
-            self.ghosts = [Ghost(2, 2), Ghost(3, 3)]
-            self.maze = Maze(5, 5, self.pacman.pos)
-       
+        mp = game_params['map']
+
+        self._pacman = Pacman(pacman)
+        self._ghosts = [Ghost(ghost[1]) for ghost in ghosts]
+        self._maze = Maze(mp)
+
+    @property
+    def pacman(self):
+        return self._pacman
+
+    @property
+    def ghosts(self):
+        return self._ghosts
+
+    @property
+    def maze(self):
+        return self._maze
 
     def move(self, chr):
-        if chr == 'w':
-            self.pacman.move_up()
-        elif chr == 'd':
-            self.pacman.move_right()
-        elif chr == 's':
-            self.pacman.move_down()
-        elif chr == 'a':
-            self.pacman.move_left()
+        pass
+        # if not self.maze.is_wall(self.pacman.get_move()):
+        #     self.pacman.move()
+        #     self.maze.set_pacman(self.pacman.pos)
 
-        if not self.maze.is_wall(self.pacman.get_move()):
-            self.pacman.move()
-            self.maze.set_pacman(self.pacman.pos)
-    
     def to_params(self):
-        spawns = self.maze.spawn_points
-        width, height = self.maze.get_dimensions
-        ghosts_count = self.ghosts.length + 1
+        spawns = self._maze.spawn_points
+        width, height = self._maze.get_dimensions
+        ghosts_count = self._ghosts.length + 1
         return {
             "width": width,
             "height": height,
             "pacman": (0, spawns[0]),
             "ghosts": [(i, point) for (i, point)  in zip(range(1, ghosts_count), spawns[1:ghosts_count])]
-            
+
         }
 
     def get(self):
-        return self.maze
-
+        return self._maze
 
     def connect_ghost(self, ghost):
-        self.ghosts.append(ghost)
-
-
+        self._ghosts.append(ghost)

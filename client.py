@@ -2,6 +2,7 @@ import Pyro4
 from remote import RemoteClient
 from threading import Thread
 from game import Game
+from pacman import Pacman
 import room
 
 
@@ -13,6 +14,20 @@ class PyroClientThread(Thread):
     def run(self):
         daemon.requestLoop()
         print('finished loop')
+
+
+def load_map(mapname='map.txt'):
+    with open(mapname, 'r') as inp:
+        n, m = map(int, inp.readline().split())
+        mp = [list(inp.readline().strip()) for _ in range(n)]
+        spawns = []
+        for i, row in enumerate(mp):
+            for j, c in enumerate(row):
+                if c.isdigit():
+                    spawns.append((i, j))
+                    mp[i][i] = '.'
+        return n, m, mp, spawns
+
 
 if __name__ == '__main__':
     with Pyro4.Daemon() as daemon:
@@ -28,8 +43,6 @@ if __name__ == '__main__':
             print(i, room_name)
         action = input()
         room = None
-        widht = height = 5
-        pacman = Pacman(width/4, height/4)
         if action.startswith('+'):
             _, room_name = action.split(maxsplit=1)
             room = gameserver.new_room(room_name, client_uri)
@@ -40,12 +53,14 @@ if __name__ == '__main__':
                 game = Game()
             print('debug starting')
             room = gameserver.start_room(room_name)
-            ghosts_count = room.ghosts.lenght + 1
+            ghosts_count = len(room.ghosts) - 1
+            height, width, mp, spawns = load_map()
             params = {
                 "width": width,
                 "height": height,
+                "map": mp,
                 "pacman": (0, spawns[0]),
-                "ghosts": [(i, point) for (i, point)  in zip(range(1, ghosts_count), spawns[1:ghosts_count])]
+                "ghosts": [(i+1, point) for (i, point)  in enumerate(spawns[1:ghosts_count])]
             }
             for ghost_client_uri in room.ghosts:
                 with Pyro4.Proxy(ghost_client_uri) as ghost_client:
@@ -62,5 +77,6 @@ if __name__ == '__main__':
             with Pyro4.Proxy(room.pacman_uri) as pacman_client:
                 pacman_client.append_listener(client_uri)
                 client.append_listener(room.pacman_uri)
-                while True:
-                    pass
+            print('Wait for the game start')
+            while True:
+                pass
