@@ -25,3 +25,6 @@ class Game:
 
     def get(self):
         return self.maze
+
+    def connect_ghost(self, ghost):
+        self.ghosts.append(ghost)
