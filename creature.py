@@ -1,6 +1,6 @@
 class Creature:
-    def __init__(self, pos):
-        self.id = 0
+    def __init__(self, _id, pos):
+        self._id = _id
         self.pos = pos
         self.direction = (0, 0)
 
@@ -22,6 +22,10 @@ class Creature:
     @property
     def position(self):
         return self.pos
+
+    @property
+    def id(self):
+        return self._id
 
     def move(self):
         self.pos = [cur + nex for cur, nex in zip(self.pos, self.direction)]

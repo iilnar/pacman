@@ -5,6 +5,7 @@ from utils import getch, clear
 from game import Game
 from creature import Creature
 
+stopit = [False]
 
 class Input(Thread):
     def __init__(self, creature, send_msg_all):
@@ -14,10 +15,11 @@ class Input(Thread):
 
     def run(self):
         char = ''
-        while char != 'q':
+        while char != 'q' and not stopit[0]:
             char = getch()
-            self.creature.move(char)
+            _move_creature(self.creature, char)
             self.send_msg_all(char)
+        stopit[0] = True
 
 
 class Output(Thread):
@@ -26,16 +28,40 @@ class Output(Thread):
         self.game = game
 
     def run(self):
-        for _ in range(1):
-            clear()
+        cnt = 0
+        while self.game.in_progress and not stopit[0] and cnt < 100:
+            cnt += 1
+            # clear()
+            self.game.iteration()
             maze = self.game.maze.board
             ghosts = self.game.ghosts
             pacman = self.game.pacman
+            print("run", id(ghosts))
             for ghost in ghosts:
                 maze[ghost.position[0]][ghost.position[1]] = 'G'
             maze[pacman.position[0]][pacman.position[1]] = 'P'
             for row in maze:
                 print(''.join(row), end='\r\n')
+        stopit[0] = True
+
+
+def _get_creature_by_id(ls, idd):
+    for ghost in ls:
+        if idd == idd:
+            return ghost
+    return None
+
+
+def _move_creature(creat, chr):
+    print("_move_creature", id(creat))
+    if chr == 'w':
+        creat.move_up()
+    elif chr == 'd':
+        creat.move_right()
+    elif chr == 's':
+        creat.move_down()
+    elif chr == 'a':
+        creat.move_left()
 
 
 @Pyro4.expose
@@ -55,20 +81,11 @@ class RemoteClient(object):
         print("msg msg:", msg)
 
     def make_move(self, idd, char):
-        def move_creature(creat, chr):
-            if chr == 'w':
-                creat.move_up()
-            elif chr == 'd':
-                creat.move_right()
-            elif chr == 's':
-                creat.move_down()
-            elif chr == 'a':
-                creat.move_left()
-
         if idd == 0:
-            move_creature(self.game.pacman, char)
+            _move_creature(self.game.pacman, char)
         else:
-            for ghost in self.ghosts:
+            _move_creature(_get_creature_by_id(self.game.ghosts, idd), char)
+
 
     def send_msg_all(self, char):
         for listener in self.listeners:
@@ -80,6 +97,8 @@ class RemoteClient(object):
 
     def start(self, **kwargs):
         game_params = kwargs['game_params']
+        print(game_params)
+        print(kwargs['id'])
         self.id = kwargs['id']
         self.game = Game(game_params=game_params)
         print('Started')
@@ -88,4 +107,12 @@ class RemoteClient(object):
                 obj.send_msg(id(self), "hey, i miss you")
         print('Sent')
         out = Output(self.game)
+
+        creat = None
+        if self.id == 0:
+            creat = self.game.pacman
+        else:
+            creat = _get_creature_by_id(self.game.ghosts, self.id)
+        inp = Input(creat, lambda c: self.send_msg_all(c))
         out.start()
+        inp.start()

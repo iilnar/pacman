@@ -25,7 +25,7 @@ def load_map(mapname='map.txt'):
             for j, c in enumerate(row):
                 if c.isdigit():
                     spawns.append((i, j))
-                    mp[i][i] = '.'
+                    mp[i][j] = '.'
         return n, m, mp, spawns
 
 
@@ -53,19 +53,21 @@ if __name__ == '__main__':
                 game = Game()
             print('debug starting')
             room = gameserver.start_room(room_name)
-            ghosts_count = len(room.ghosts) - 1
+            ghosts_count = len(room.ghosts)
             height, width, mp, spawns = load_map()
             params = {
                 "width": width,
                 "height": height,
                 "map": mp,
                 "pacman": (0, spawns[0]),
-                "ghosts": [(i+1, point) for (i, point)  in enumerate(spawns[1:ghosts_count])]
+                "ghosts": [(i, point) for (i, point)  in enumerate(spawns[1:ghosts_count+1], 1)]
             }
+            counter = 1
             for ghost_client_uri in room.ghosts:
                 with Pyro4.Proxy(ghost_client_uri) as ghost_client:
-                    ghost_client.start(game_params=params)
-            client.start(game_params=params)
+                    ghost_client.start(game_params=params, id=counter)
+                    counter += 1
+            client.start(game_params=params, id=0)
             print('debug started')
         else:
             room = gameserver.connect_to_room(action, client_uri)

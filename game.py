@@ -11,8 +11,8 @@ class Game:
         mp = game_params['map']
 
         self._in_progress = True
-        self._pacman = Pacman(pacman)
-        self._ghosts = [Ghost(ghost[1]) for ghost in ghosts]
+        self._pacman = Pacman(0, pacman)
+        self._ghosts = [Ghost(ghost[0], ghost[1]) for ghost in ghosts]
         self._maze = Maze(mp)
 
     @property
@@ -36,9 +36,9 @@ class Game:
             creat.move()
 
     def iteration(self):
-        move(self.pacman)
+        self.move(self.pacman)
         for ghost in self.ghosts:
-            move(self.ghosts)
+            self.move(ghost)
         if self.maze.has_coin(self.pacman.position):
             self.pacman.inc_score()
             self.maze.remove_coin(self.pacman.position)
@@ -49,12 +49,12 @@ class Game:
     def to_params(self):
         spawns = self._maze.spawn_points
         width, height = self._maze.get_dimensions
-        ghosts_count = self._ghosts.length + 1
+        ghosts_count = self._ghosts.length
         return {
             "width": width,
             "height": height,
             "pacman": (0, spawns[0]),
-            "ghosts": [(i, point) for (i, point)  in zip(range(1, ghosts_count), spawns[1:ghosts_count])]
+            "ghosts": [(i, point) for (i, point) in enumerate(spawns[1:ghosts_count+1], 1)]
         }
 
     def get(self):

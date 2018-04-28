@@ -1,8 +1,8 @@
 from creature import Creature
 
 class Pacman(Creature):
-    def __init__(self, pos):
-        super(Pacman, self).__init__(pos)
+    def __init__(self, idd, pos):
+        super(Pacman, self).__init__(idd, pos)
         self.superpower = 0
         self.score = 0
 
