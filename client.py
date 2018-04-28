@@ -21,18 +21,12 @@ if __name__ == '__main__':
             action = input()
             while action != 'start':
                 action = input()
-            for ghost_uri in gameserver.start_room(room_name).ghosts:
-                Pyro4.Proxy(ghost_uri).start()
-            client.start()
+            room = gameserver.start_room(room_name)
+            for uri in room.ghosts:
+                Pyro4.Proxy(uri).start(room.ghosts + [client_uri])
+            client.start(room.ghosts + [client_uri])
             print('debug started')
         else:
             room = gameserver.connect_to_room(action, client_uri)
-
-            for ghost_uri in room.ghosts:
-                if ghost_uri != client_uri:
-                    Pyro4.Proxy(ghost_uri).append_listener(client_uri)
-                    client.append_listener(ghost_uri)
-            client.append_listener(room.pacman_uri)
-
             print('Wait for the beginning.')
         daemon.requestLoop()

@@ -17,12 +17,14 @@ class RemoteClient(object):
     def send_msg(self, frm, msg):
         print("msg to:", self.id)
         print("msg from:", frm)
-        print("msg text:", text)
+        print("msg msg:", msg)
 
     def append_listener(self, listener_uri):
         self.listeners.append(listener_uri)
 
-    def start(self):
+    def start(self, listeners):
+        self.listeners = listeners
         print('Started')
         for listener in self.listeners:
             Pyro4.Proxy(listener).send_msg(self.id, "hey, i miss you")
+        print('Sent')
