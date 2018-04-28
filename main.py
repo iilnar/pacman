@@ -3,29 +3,6 @@ from threading import Thread
 from game import Game
 
 
-class Input(Thread):
-    def __init__(self, func):
-        Thread.__init__(self)
-        self.handler = func
-
-    def run(self):
-        char = ''
-        while char != 'q':
-            char = getch()
-            self.handler(char)
-
-
-class Output(Thread):
-    def __init__(self, maze):
-        Thread.__init__(self)
-        self.maze = maze
-
-    def run(self):
-        for _ in range(1000):
-            clear()
-            print(str(self.maze()).replace('\n', '\r\n'), end='\r\n')
-
-
 class PyroDaemonThread(Thread):
     def __init__(self, engine):
         Thread.__init__(self)

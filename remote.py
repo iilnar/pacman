@@ -1,12 +1,37 @@
 import Pyro4
 
-ids = [0]
+from threading import Thread
+from utils import getch, clear
+from game import Game
+from creature import Creature
+
+
+class Input(Thread):
+    def __init__(self, creature):
+        Thread.__init__(self)
+        self.creature = creature
+
+    def run(self):
+        char = ''
+        while char != 'q':
+            char = getch()
+            self.creature.move(char)
+
+
+class Output(Thread):
+    def __init__(self, game):
+        Thread.__init__(self)
+        self.maze = maze
+
+    def run(self):
+        for _ in range(1000):
+            clear()
+            print(str(self.game.maze()).replace('\n', '\r\n'), end='\r\n')
+
 
 @Pyro4.expose
 class RemoteClient(object):
     def __init__(self):
-        self.id = ids[0]
-        ids[0] += 1
         self.x, self.y = 0, 0
         self.listeners = []
 
@@ -15,16 +40,17 @@ class RemoteClient(object):
         self.x, self.y = direction
 
     def send_msg(self, frm, msg):
-        print("msg to:", self.id)
+        print("msg to:", id(self))
         print("msg from:", frm)
         print("msg msg:", msg)
 
     def append_listener(self, listener_uri):
         self.listeners.append(listener_uri)
 
-    def start(self, listeners):
-        self.listeners = listeners
+    def start(self, *args, **kwargs):
+        game = Game
         print('Started')
         for listener in self.listeners:
-            Pyro4.Proxy(listener).send_msg(self.id, "hey, i miss you")
+            with Pyro4.Proxy(listener) as obj:
+                obj.send_msg(id(self), "hey, i miss you")
         print('Sent')
