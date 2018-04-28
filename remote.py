@@ -7,15 +7,17 @@ from creature import Creature
 
 
 class Input(Thread):
-    def __init__(self, creature):
+    def __init__(self, creature, send_msg_all):
         Thread.__init__(self)
         self.creature = creature
+        self.send_msg_all = send_msg_all
 
     def run(self):
         char = ''
         while char != 'q':
             char = getch()
             self.creature.move(char)
+            self.send_msg_all(char)
 
 
 class Output(Thread):
@@ -41,6 +43,7 @@ class RemoteClient(object):
     def __init__(self):
         self.x, self.y = 0, 0
         self.listeners = []
+        self.game = None
 
     def change_direction(self, direction):
         print(direction)
@@ -51,16 +54,38 @@ class RemoteClient(object):
         print("msg from:", frm)
         print("msg msg:", msg)
 
+    def make_move(self, idd, char):
+        def move_creature(creat, chr):
+            if chr == 'w':
+                creat.move_up()
+            elif chr == 'd':
+                creat.move_right()
+            elif chr == 's':
+                creat.move_down()
+            elif chr == 'a':
+                creat.move_left()
+
+        if idd == 0:
+            move_creature(self.game.pacman, char)
+        else:
+            for ghost in self.ghosts:
+
+    def send_msg_all(self, char):
+        for listener in self.listeners:
+            with Pyro4.Proxy(listener) as obj:
+                obj.make_move(self.id, char)
+
     def append_listener(self, listener_uri):
         self.listeners.append(listener_uri)
 
     def start(self, **kwargs):
         game_params = kwargs['game_params']
-        game = Game(game_params=game_params)
+        self.id = kwargs['id']
+        self.game = Game(game_params=game_params)
         print('Started')
         for listener in self.listeners:
             with Pyro4.Proxy(listener) as obj:
                 obj.send_msg(id(self), "hey, i miss you")
         print('Sent')
-        out = Output(game)
+        out = Output(self.game)
         out.start()
