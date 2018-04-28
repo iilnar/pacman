@@ -1,5 +1,6 @@
 class Creature:
     def __init__(self, pos):
+        self.id = 
         self.pos = pos
         self.direction = (0, 0)
 

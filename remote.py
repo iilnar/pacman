@@ -47,8 +47,9 @@ class RemoteClient(object):
     def append_listener(self, listener_uri):
         self.listeners.append(listener_uri)
 
-    def start(self, *args, **kwargs):
-        game = Game
+    def start(self, **kwargs):
+        game_params = kwargs['game_params']
+        game = Game(game_params=game_params)
         print('Started')
         for listener in self.listeners:
             with Pyro4.Proxy(listener) as obj:
