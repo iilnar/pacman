@@ -25,30 +25,40 @@ class MazeGrid(Canvas):
         self.create_rectangle(x, y, x + self.square, y + self.square, fill='black', outline=color,width=2)
 
 class GUI(object):
-    def __init__(self,width, height):
+    def __init__(self,width=25, height=20):
         Thread.__init__(self)
         self.tk = Tk()
         self.tk.wm_title("Pacman Distributed Game")
-        maze_frame = Frame(self.tk, borderwidth=3, relief="raised", padx=2, pady=2, background='#946965')
-        self.grid = MazeGrid(maze_frame, width, height, square=20)
+        self.maze_frame = Frame(self.tk, borderwidth=3, relief="raised", padx=2, pady=2, background='#946965')
+        self.grid = MazeGrid(self.maze_frame, width, height, square=20)
         score_frame = Frame(self.tk, padx=2, pady=2)
         score_label = Label(score_frame, text="Players' score list:")
         score_label.pack(fill=X)
         self.listbox=Listbox(score_frame, width=15, height=20, font=(None,8))
         self.listbox.pack()
-        self.startroombutton=Button(score_frame, text='Create room', command = lambda: self.buttonhandler.button_clicked('start_room'))
-        self.startroombutton.pack()
+
+        self.createroombutton=Button(score_frame, text='Create room', command = lambda: self.buttonhandler.button_clicked('create_room'))
+        self.createroombutton.pack()
+
+        self.startgamebutton=Button(score_frame, text='Start game', command = lambda: self.buttonhandler.button_clicked('start_game'), state=DISABLED)
+        self.startgamebutton.pack()
+
         self.joinroombutton=Button(score_frame, text='Join room', command = lambda: self.buttonhandler.button_clicked('join_room'))
         self.joinroombutton.pack()
-        self.startgamebutton=Button(score_frame, text='Start game', command = lambda: self.buttonhandler.button_clicked('join_room'))
-        self.startgamebutton.pack()
+
+        self.update_rooms=Button(score_frame, text='Update rooms', command = lambda: self.buttonhandler.button_clicked('update_rooms'))
+        self.update_rooms.pack()
+
+        self.maze_frame.bind('<Button-1>', lambda x: self.maze_frame.focus_set())
+        self.maze_frame.bind('<Key>', lambda x: print('pressed', x))
+
         self.statuslabel=Label(score_frame, width=20)
         self.statuslabel.pack(side=BOTTOM)
         self.grid.pack()
-        maze_frame.pack(side=LEFT)
+        self.maze_frame.pack(side=LEFT)
         score_frame.pack(side=RIGHT, fill=BOTH)
         self.buttonhandler  = None
-    
+
     def enable_buttons(self, enabled=True):
         if enabled:
             self.startroombutton.config(state=NORMAL)
@@ -81,13 +91,13 @@ class GUI(object):
                 x = x*self.grid.square
                 y = y*self.grid.square
                 self.grid.coords(pacman.id, x, y, x+self.grid.square, y+self.grid.square)
-                
+
                 for ghost in ghosts:
                     x,y =  ghost.position
                     x = x*self.grid.square
                     y = y*self.grid.square
                     self.grid.coords(ghost.id, x, y, x+self.grid.square, y+self.grid.square)
-                
+
                 sleep(0.1)
             # stopit[0] = True
         else:
