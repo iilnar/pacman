@@ -4,19 +4,19 @@ class Creature:
         self.pos = pos
         self.direction = (0, 0)
 
-    def move_up(self):
+    def move_up(self, world=None):
         self.direction = (-1, 0)
 
-    def move_right(self):
+    def move_right(self, world=None):
         self.direction = (0, 1)
 
-    def move_down(self):
+    def move_down(self, world=None):
         self.direction = (1, 0)
 
-    def move_left(self):
+    def move_left(self, world=None):
         self.direction = (0, -1)
 
-    def get_move(self):
+    def get_move(self, world=None):
         return [cur + nex for cur, nex in zip(self.pos, self.direction)]
 
     @property
@@ -27,6 +27,6 @@ class Creature:
     def id(self):
         return self._id
 
-    def move(self):
+    def move(self, world=None):
         self.pos = [cur + nex for cur, nex in zip(self.pos, self.direction)]
         self.direction = (0, 0)

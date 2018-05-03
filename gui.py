@@ -26,6 +26,7 @@ class MazeGrid(Canvas):
 
 class GUI(object):
     def __init__(self,width, height):
+        Thread.__init__(self)
         self.tk = Tk()
         self.tk.wm_title("Pacman Distributed Game")
         maze_frame = Frame(self.tk, borderwidth=3, relief="raised", padx=2, pady=2, background='#946965')
@@ -57,6 +58,40 @@ class GUI(object):
             self.startroombutton.config(state=DISABLED)
             self.joinroombutton.config(state=DISABLED)
             self.startgamebutton.config(state=DISABLED)
+
+    def draw_creature(self, creature):
+        x,y = creature.position
+        x = x*self.grid.square
+        y = y*self.grid.square
+        tkid = self.grid.create_rectangle(x,y,x+self.grid.square,y+self.grid.square,fill=creature.color)
+        return tkid
+
+    def run(self, game=None):
+        if game:
+            while self.game.in_progress:
+                self.game.iteration()
+                maze = self.game.maze.board
+                ghosts = self.game.ghosts
+                pacman = self.game.pacman
+                # print("run", id(ghosts))
+                # for ghost in ghosts:
+                #     maze[ghost.position[0]][ghost.position[1]] = 'G'
+                # maze[pacman.position[0]][pacman.position[1]] = 'P'
+                x,y =  pacman.position
+                x = x*self.grid.square
+                y = y*self.grid.square
+                self.grid.coords(pacman.id, x, y, x+self.grid.square, y+self.grid.square)
+                
+                for ghost in ghosts:
+                    x,y =  ghost.position
+                    x = x*self.grid.square
+                    y = y*self.grid.square
+                    self.grid.coords(ghost.id, x, y, x+self.grid.square, y+self.grid.square)
+                
+                sleep(0.1)
+            # stopit[0] = True
+        else:
+            return None
 
 if __name__ == "__main__":
     width = 25
