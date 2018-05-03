@@ -1,4 +1,5 @@
 import Pyro4
+import socket
 from threading import Thread
 from remote import RemoteClient
 from room import Room
@@ -37,7 +38,8 @@ class PyroDaemonThread(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.pyroserver = GameServer()
-        self.pyrodaemon=Pyro4.Daemon()
+        ip = socket.gethostbyname(socket.gethostname())
+        self.pyrodaemon=Pyro4.Daemon(ip)
         self.ns=Pyro4.locateNS()
         self.setDaemon(False)
     def run(self):

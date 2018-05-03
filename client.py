@@ -1,4 +1,6 @@
 import Pyro4
+import socket
+
 from remote import RemoteClient
 from threading import Thread
 from game import Game
@@ -30,7 +32,8 @@ def load_map(mapname='map.txt'):
 
 
 if __name__ == '__main__':
-    with Pyro4.Daemon() as daemon:
+    ip = socket.gethostbyname(socket.gethostname())
+    with Pyro4.Daemon(ip) as daemon:
         client = RemoteClient()
         client_uri = daemon.register(client)
         PyroClientThread(daemon).start()
@@ -69,6 +72,7 @@ if __name__ == '__main__':
                     counter += 1
             client.start(game_params=params, id=0)
             print('debug started')
+            daemon.requestLoop()
         else:
             room = gameserver.connect_to_room(action, client_uri)
             for ghost_client_uri in room.ghosts:
@@ -80,5 +84,6 @@ if __name__ == '__main__':
                 pacman_client.append_listener(client_uri)
                 client.append_listener(room.pacman_uri)
             print('Wait for the game start')
+            daemon.requestLoop()
             while True:
                 pass

@@ -10,6 +10,7 @@ class PyroDaemonThread(Thread):
         self.pyrodaemon=Pyro4.Daemon()
         self.ns=Pyro4.locateNS()
         self.setDaemon(True)
+        
     def run(self):
         with self.pyrodaemon:
             with self.ns:

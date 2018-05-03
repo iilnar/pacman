@@ -29,14 +29,14 @@ class Output(Thread):
 
     def run(self):
         cnt = 0
-        while self.game.in_progress and not stopit[0] and cnt < 100:
+        while self.game.in_progress and not stopit[0]:
             cnt += 1
-            # clear()
+            clear()
             self.game.iteration()
             maze = self.game.maze.board
             ghosts = self.game.ghosts
             pacman = self.game.pacman
-            print("run", id(ghosts))
+            # print("run", id(ghosts))
             for ghost in ghosts:
                 maze[ghost.position[0]][ghost.position[1]] = 'G'
             maze[pacman.position[0]][pacman.position[1]] = 'P'
@@ -53,7 +53,7 @@ def _get_creature_by_id(ls, idd):
 
 
 def _move_creature(creat, chr):
-    print("_move_creature", id(creat))
+    # print("_move_creature", id(creat))
     if chr == 'w':
         creat.move_up()
     elif chr == 'd':
@@ -97,8 +97,8 @@ class RemoteClient(object):
 
     def start(self, **kwargs):
         game_params = kwargs['game_params']
-        print(game_params)
-        print(kwargs['id'])
+        # print(game_params)
+        # print(kwargs['id'])
         self.id = kwargs['id']
         self.game = Game(game_params=game_params)
         print('Started')
