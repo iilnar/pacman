@@ -8,15 +8,23 @@ class Creature:
         self.color = '#%06x' % color
 
     def move_up(self, world=None):
+        if self.direction != (0, 0):
+            break
         self.direction = (-1, 0)
 
     def move_right(self, world=None):
+        if self.direction != (0, 0):
+            break
         self.direction = (0, 1)
 
     def move_down(self, world=None):
+        if self.direction != (0, 0):
+            break
         self.direction = (1, 0)
 
     def move_left(self, world=None):
+        if self.direction != (0, 0):
+            break
         self.direction = (0, -1)
 
     def get_move(self, world=None):
