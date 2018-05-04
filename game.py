@@ -32,6 +32,9 @@ class Game:
     def iteration(self):
         for pacman in self.pacmans:
             self.move(pacman)
+            print(pacman.direction)
+            print(pacman.position)
+            print(id(pacman))
             if self.maze.has_coin(pacman.position):
                 pacman.inc_score()
                 self.maze.remove_coin(pacman.position)

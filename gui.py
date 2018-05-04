@@ -3,7 +3,7 @@ import Pyro4
 from threading import Thread
 import pacman
 import random
-import time
+from time import sleep
 
 
 class MazeGrid(Canvas):
@@ -76,24 +76,27 @@ class GUI(object):
         x = x*self.grid.square
         y = y*self.grid.square
         tkid = self.grid.create_rectangle(x,y,x+self.grid.square,y+self.grid.square,fill=creature.color)
+        creature.tkid = tkid
         return tkid
 
     def redraw_creature(self, creature):
         x,y =  creature.position
         x = x*self.grid.square
         y = y*self.grid.square
-        self.grid.coords(creature.id, x, y, x+self.grid.square, y+self.grid.square)
+        self.grid.coords(creature.tkid, x, y, x+self.grid.square, y+self.grid.square)
 
 
     def run(self, game=None):
         if game:
-            while self.game.in_progress:
-                self.game.iteration()
-                maze = self.game.maze.board
-                pacmans = self.game.pacmans
-                for pacman in pacmans:
+            for pacman in game.pacmans:
+                self.draw_creature(pacman)
+            while game.in_progress:
+                game.iteration()
+                maze = game.maze.board
+                for pacman in game.pacmans:
                     self.redraw_creature(pacman)
-                sleep(0.1)
+                sleep(3)
+                print('iteration completed')
         else:
             return None
 

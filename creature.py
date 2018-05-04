@@ -1,8 +1,12 @@
+from random import randint
 class Creature:
     def __init__(self, _id, pos):
         self._id = _id
         self.pos = pos
         self.direction = (0, 0)
+        color = randint(0, 0xffffff)
+        self.color = '#%06x' % color
+        print(self.color)
 
     def move_up(self, world=None):
         self.direction = (-1, 0)

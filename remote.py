@@ -5,43 +5,6 @@ from utils import getch, clear
 from game import Game
 from creature import Creature
 
-class Input(Thread):
-    def __init__(self, creature, send_msg_all):
-        Thread.__init__(self)
-        self.creature = creature
-        self.send_msg_all = send_msg_all
-
-    def run(self):
-        char = ''
-        while char != 'q' and not stopit[0]:
-            char = getch()
-            _move_creature(self.creature, char)
-            self.send_msg_all(char)
-        stopit[0] = True
-
-
-class Output(Thread):
-    def __init__(self, game):
-        Thread.__init__(self)
-        self.game = game
-
-    def run(self):
-        cnt = 0
-        while self.game.in_progress and not stopit[0]:
-            cnt += 1
-            clear()
-            self.game.iteration()
-            maze = self.game.maze.board
-            ghosts = self.game.ghosts
-            pacman = self.game.pacman
-            # print("run", id(ghosts))
-            for ghost in ghosts:
-                maze[ghost.position[0]][ghost.position[1]] = 'G'
-            maze[pacman.position[0]][pacman.position[1]] = 'P'
-            for row in maze:
-                print(''.join(row), end='\r\n')
-        stopit[0] = True
-
 
 def _get_creature_by_id(ls, idd):
     for pacman in ls:
@@ -79,13 +42,11 @@ class RemoteClient(object):
         print("msg msg:", msg)
 
     def make_move(self, idd, char):
-        if idd == 0:
-            _move_creature(self.game.pacman, char)
-        else:
-            _move_creature(_get_creature_by_id(self.game.pacmans, idd), char)
+        _move_creature(_get_creature_by_id(self.game.pacmans, idd), char)
 
     def _keyboard_handler(self, event):
-        _move_creature(self.creature, repr(event.char))
+        print(event)
+        _move_creature(self.creature, event.char)
         self.send_msg_all(repr(event.char))
 
     def send_msg_all(self, char):
@@ -107,11 +68,19 @@ class RemoteClient(object):
                 if chr == '#':
                     self.gui.grid.wall(i, j)
 
+        self.creature = _get_creature_by_id(self.game.pacmans, self.id)
+
+        class TThread(Thread):
+            def __init__(self, gui, game):
+                Thread.__init__(self)
+                self.gui = gui
+                self.game = game
+
+            def run(self):
+                self.gui.run(self.game)
+        TThread(self.gui, self.game).start()
+
         print('Started')
         for listener in self.listeners:
             with Pyro4.Proxy(listener) as obj:
                 obj.send_msg(id(self), "hey, i miss you")
-        print('Sent')
-        out = Output(self.game)
-
-        self.creature = _get_creature_by_id(self.game.pacmans, self.id)
