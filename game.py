@@ -28,6 +28,7 @@ class Game:
     def move(self, creat):
         if not self.maze.is_wall(creat.get_move()):
             creat.move()
+        creat.direction = (0, 0)
 
     def iteration(self):
         for pacman in self.pacmans:
