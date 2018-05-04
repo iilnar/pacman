@@ -112,7 +112,17 @@ class GUI(object):
 
                 sleep(0.5)
                 # print('iteration completed')
-            print('end iteration')
+            # answer = messagebox.askokcancel("Question","Do you want to open this file?")
+            frame = Frame(self.tk, borderwidth=3)
+            label = tk.Label(frame, text="Players score")
+            label.pack(side="top", fill="both", expand=True, padx=20, pady=20)
+            listbox = listbox(frame, width=15, height=20, font=(None,10))
+            listbox.pack()
+            for pacman in game.pacmans:
+                score = "Player " + pacman.id + " has " + pacman.score
+                listbox.insert(pacman.id, score, fill=pacman.color)
+            frame.pack(side=RIGHT)
+            # answer = messagebox.askretrycancel("Game finished", "Do you want to try again?")
         else:
             return None
 
