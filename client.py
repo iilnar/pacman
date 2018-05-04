@@ -79,12 +79,15 @@ if __name__ == '__main__':
             "pacmans": [(i, point) for (i, point)  in enumerate(spawns[:pacmans_count])]
         }
         counter = 0
+        own_id = -1
         for pacman_client_uri in room.pacmans_uri:
             if pacman_client_uri != client_uri:
                 with Pyro4.Proxy(pacman_client_uri) as pacman_client:
                     pacman_client.start(game_params=params, id=counter)
+            else:
+                own_id = counter
             counter += 1
-        client.start(game_params=params, id=0)
+        client.start(game_params=params, id=own_id)
 
     gui.buttonhandler.assign_handler('start_game', start_game)
 
@@ -106,9 +109,6 @@ if __name__ == '__main__':
                     with Pyro4.Proxy(pacman_client_uri) as pacman_client:
                         pacman_client.append_listener(client_uri)
                         client.append_listener(pacman_client_uri)
-            with Pyro4.Proxy(room.pacman_uri) as pacman_client:
-                pacman_client.append_listener(client_uri)
-                client.append_listener(room.pacman_uri)
             print('connected')
 
     gui.buttonhandler.assign_handler('join_room', join_room)

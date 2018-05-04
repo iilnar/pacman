@@ -6,7 +6,6 @@ class Creature:
         self.direction = (0, 0)
         color = randint(0, 0xffffff)
         self.color = '#%06x' % color
-        print(self.color)
 
     def move_up(self, world=None):
         self.direction = (-1, 0)

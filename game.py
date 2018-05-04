@@ -8,7 +8,7 @@ class Game:
         height = game_params["height"]
         pacmans = game_params["pacmans"]
         mp = game_params['map']
-
+        print(pacmans)
         self._in_progress = True
         self._pacmans = [Pacman(pacman[0], pacman[1]) for pacman in pacmans]
         self._maze = Maze(mp)
@@ -32,9 +32,6 @@ class Game:
     def iteration(self):
         for pacman in self.pacmans:
             self.move(pacman)
-            print(pacman.direction)
-            print(pacman.position)
-            print(id(pacman))
             if self.maze.has_coin(pacman.position):
                 pacman.inc_score()
                 self.maze.remove_coin(pacman.position)

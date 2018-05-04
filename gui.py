@@ -21,12 +21,12 @@ class MazeGrid(Canvas):
         # self.create_line(0, y * square, real_width, y * square, fill='#001F77')
     def normalize(self, value):
         return value * self.square
-    def wall(self, x, y, color='#001F77'):
+    def wall(self, y, x, color='#001F77'):
         x = x * self.square
         y = y * self.square
         tkid = self.create_rectangle(x, y, x + self.square, y + self.square, fill='black', outline=color,width=2)
         return tkid
-    def coin(self, x, y, color='#FBE883'):
+    def coin(self, y, x, color='#FBE883'):
         x = x * self.square + self.square/3
         y = y * self.square + self.square/3
         tkid = self.create_oval(x, y, x + self.square*1/3, y + self.square*1/3, fill=color, outline=color,width=1)
@@ -83,7 +83,7 @@ class GUI(object):
             self.startgamebutton.config(state=DISABLED)
 
     def draw_creature(self, creature):
-        x,y = creature.position
+        y,x = creature.position
         x = x*self.grid.square
         y = y*self.grid.square
         tkid = self.grid.create_rectangle(x,y,x+self.grid.square,y+self.grid.square,fill=creature.color)
@@ -91,12 +91,13 @@ class GUI(object):
         return tkid
 
     def redraw_creature(self, creature):
-        x,y =  creature.position
+        y,x =  creature.position
         x = x*self.grid.square
         y = y*self.grid.square
         self.grid.coords(creature.tkid, x, y, x+self.grid.square, y+self.grid.square)
 
     def run(self, game=None):
+        self.maze_frame.focus_set()
         if game:
             for pacman in game.pacmans:
                 self.draw_creature(pacman)
@@ -109,8 +110,9 @@ class GUI(object):
                     if not game.maze.has_coin(pos):
                         self.hide(game.coin2tkid[pos])
 
-                sleep(3)
-                print('iteration completed')
+                sleep(0.5)
+                # print('iteration completed')
+            print('end iteration')
         else:
             return None
 

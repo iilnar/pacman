@@ -8,12 +8,13 @@ from creature import Creature
 
 def _get_creature_by_id(ls, idd):
     for pacman in ls:
-        if idd == idd:
+        if idd == pacman.id:
             return pacman
     return None
 
 
 def _move_creature(creat, chr):
+    print("_move_creature", creat.id, chr)
     if chr == 'w':
         creat.move_up()
     elif chr == 'd':
@@ -42,12 +43,13 @@ class RemoteClient(object):
         print("msg msg:", msg)
 
     def make_move(self, idd, char):
+        print('make_move', idd, char)
         _move_creature(_get_creature_by_id(self.game.pacmans, idd), char)
 
     def _keyboard_handler(self, event):
         print(event)
         _move_creature(self.creature, event.char)
-        self.send_msg_all(repr(event.char))
+        self.send_msg_all(event.char)
 
     def send_msg_all(self, char):
         for listener in self.listeners:
@@ -60,6 +62,7 @@ class RemoteClient(object):
     def start(self, **kwargs):
         game_params = kwargs['game_params']
         self.id = kwargs['id']
+        print('my id', self.id)
         self.game = Game(game_params=game_params)
         self.gui.keyboardhandler = lambda event: self._keyboard_handler(event)
         self.game.coin2tkid = {}
