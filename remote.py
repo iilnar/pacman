@@ -37,11 +37,6 @@ class RemoteClient(object):
         print(direction)
         self.x, self.y = direction
 
-    def send_msg(self, frm, msg):
-        print("msg to:", id(self))
-        print("msg from:", frm)
-        print("msg msg:", msg)
-
     def make_move(self, idd, char):
         print('make_move', idd, char)
         _move_creature(_get_creature_by_id(self.game.pacmans, idd), char)
@@ -53,8 +48,11 @@ class RemoteClient(object):
 
     def send_msg_all(self, char):
         for listener in self.listeners:
-            with Pyro4.Proxy(listener) as obj:
-                obj.make_move(self.id, char)
+            try:
+                with Pyro4.Proxy(listener) as obj:
+                    obj.make_move(self.id, char)
+            except:
+                pass
 
     def append_listener(self, listener_uri):
         self.listeners.append(listener_uri)
@@ -85,8 +83,3 @@ class RemoteClient(object):
             def run(self):
                 self.gui.run(self.game)
         TThread(self.gui, self.game).start()
-
-        print('Started')
-        for listener in self.listeners:
-            with Pyro4.Proxy(listener) as obj:
-                obj.send_msg(id(self), "hey, i miss you")
