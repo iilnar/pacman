@@ -31,8 +31,6 @@ class MazeGrid(Canvas):
         y = y * self.square + self.suqare/3
         tkid = self.create_oval(x, y, x + self.square*2/3, y + self.square*2/3, fill=color, outline=color,width=1)
         return tkid
-    def hide(self, gui_object):
-        gui_object.config(state=HIDDEN)
 
 class GUI(object):
     def __init__(self,width=25, height=20):
@@ -70,6 +68,9 @@ class GUI(object):
         score_frame.pack(side=RIGHT, fill=BOTH)
 
         self.buttonhandler  = None
+
+    def hide(self, id):
+        self.maze_frame.itemconfig(id, state=HIDDEN)
 
     def enable_buttons(self, enabled=True):
         if enabled:
