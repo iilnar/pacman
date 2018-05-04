@@ -1,6 +1,6 @@
 from maze import Maze
 from pacman import Pacman
-from ghost import Ghost
+# from ghost import Ghost
 
 class Game:
     def __init__(self, game_params):
@@ -12,7 +12,7 @@ class Game:
 
         self._in_progress = True
         self._pacman = Pacman(0, pacman)
-        self._ghosts = [Ghost(ghost[0], ghost[1]) for ghost in ghosts]
+        self._ghosts = [Pacman(ghost[0], ghost[1]) for ghost in ghosts]
         self._maze = Maze(mp)
 
     @property

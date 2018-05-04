@@ -1,6 +1,5 @@
 import Pyro4
 import socket
-
 from remote import RemoteClient
 from threading import Thread
 from game import Game

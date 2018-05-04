@@ -49,8 +49,8 @@ class GUI(object):
         self.update_rooms=Button(score_frame, text='Update rooms', command = lambda: self.buttonhandler.button_clicked('update_rooms'))
         self.update_rooms.pack()
 
-        self.maze_frame.bind('<Button-1>', lambda x: self.maze_frame.focus_set())
-        self.maze_frame.bind('<Key>', lambda x: print('pressed', x))
+        self.maze_frame.bind('<Enter>', lambda x: self.maze_frame.focus_set())
+        self.maze_frame.bind('<Key>', lambda event: print('pressed', repr(event.char)))
 
         self.statuslabel=Label(score_frame, width=20)
         self.statuslabel.pack(side=BOTTOM)
@@ -76,6 +76,13 @@ class GUI(object):
         tkid = self.grid.create_rectangle(x,y,x+self.grid.square,y+self.grid.square,fill=creature.color)
         return tkid
 
+    def redraw_creature(self, creature):
+        x,y =  creature.position
+        x = x*self.grid.square
+        y = y*self.grid.square
+        self.grid.coords(creature.id, x, y, x+self.grid.square, y+self.grid.square)
+
+
     def run(self, game=None):
         if game:
             while self.game.in_progress:
@@ -87,17 +94,9 @@ class GUI(object):
                 # for ghost in ghosts:
                 #     maze[ghost.position[0]][ghost.position[1]] = 'G'
                 # maze[pacman.position[0]][pacman.position[1]] = 'P'
-                x,y =  pacman.position
-                x = x*self.grid.square
-                y = y*self.grid.square
-                self.grid.coords(pacman.id, x, y, x+self.grid.square, y+self.grid.square)
-
+                self.redraw_creature(pacman)
                 for ghost in ghosts:
-                    x,y =  ghost.position
-                    x = x*self.grid.square
-                    y = y*self.grid.square
-                    self.grid.coords(ghost.id, x, y, x+self.grid.square, y+self.grid.square)
-
+                    self.redraw_creature(ghost)
                 sleep(0.1)
             # stopit[0] = True
         else:
