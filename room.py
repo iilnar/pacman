@@ -4,8 +4,7 @@ import Pyro4
 class Room(object):
     def __init__(self, room_name, pacman_uri):
         self._name = room_name
-        self._pacman_uri = pacman_uri
-        self._ghosts = []
+        self._pacmans_uri = [pacman_uri]
         self._started = False
 
     @property
@@ -13,28 +12,23 @@ class Room(object):
         return self._name
 
     @property
-    def pacman_uri(self):
-        return self._pacman_uri
-
-    @property
-    def ghosts(self):
-        return self._ghosts
+    def pacmans_uri(self):
+        return self._pacmans_uri
 
     @property
     def started(self):
         return self._started
 
-    def append_ghost(self, ghost):
-        self.ghosts.append(ghost)
+    def append_pacman(self, pacman_uri):
+        self._pacmans_uri.append(pacman_uri)
 
     def start(self):
         self._started = True
 
-
 def dict_to_room(cls, dct):
     ser = Pyro4.util.SerpentSerializer()
-    room =  Room(dct['_name'], ser.recreate_classes(dct['_pacman_uri']))
-    room._ghosts = ser.recreate_classes(dct['_ghosts'])
+    room =  Room(dct['_name'], ser.recreate_classes(dct['_pacmans_uri'][0]))
+    room._pacmans_uri.extend(ser.recreate_classes(dct['_pacmans_uri'][1:]))
     room._started = ser.recreate_classes(dct['_started'])
     return room
 

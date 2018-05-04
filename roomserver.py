@@ -26,7 +26,7 @@ class GameServer(object):
 
     def connect_to_room(self, room_name, client_uri):
         if not self._rooms[room_name].started:
-            self._rooms[room_name].append_ghost(client_uri)
+            self._rooms[room_name].append_pacman(client_uri)
             return self._rooms[room_name]
 
     def start_room(self, room_name):

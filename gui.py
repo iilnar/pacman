@@ -49,14 +49,16 @@ class GUI(object):
         self.update_rooms=Button(score_frame, text='Update rooms', command = lambda: self.buttonhandler.button_clicked('update_rooms'))
         self.update_rooms.pack()
 
-        self.maze_frame.bind('<Enter>', lambda x: self.maze_frame.focus_set())
-        self.maze_frame.bind('<Key>', lambda event: print('pressed', repr(event.char)))
+        self.keyboardhandler = lambda x: print(x)
+        self.maze_frame.focus_set()
+        self.maze_frame.bind('<Key>', lambda event: self.keyboardhandler(event))
 
         self.statuslabel=Label(score_frame, width=20)
         self.statuslabel.pack(side=BOTTOM)
         self.grid.pack()
         self.maze_frame.pack(side=LEFT)
         score_frame.pack(side=RIGHT, fill=BOTH)
+
         self.buttonhandler  = None
 
     def enable_buttons(self, enabled=True):
@@ -88,17 +90,10 @@ class GUI(object):
             while self.game.in_progress:
                 self.game.iteration()
                 maze = self.game.maze.board
-                ghosts = self.game.ghosts
-                pacman = self.game.pacman
-                # print("run", id(ghosts))
-                # for ghost in ghosts:
-                #     maze[ghost.position[0]][ghost.position[1]] = 'G'
-                # maze[pacman.position[0]][pacman.position[1]] = 'P'
-                self.redraw_creature(pacman)
-                for ghost in ghosts:
-                    self.redraw_creature(ghost)
+                pacmans = self.game.pacmans
+                for pacman in pacmans:
+                    self.redraw_creature(pacman)
                 sleep(0.1)
-            # stopit[0] = True
         else:
             return None
 
