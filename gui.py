@@ -27,9 +27,9 @@ class MazeGrid(Canvas):
         tkid = self.create_rectangle(x, y, x + self.square, y + self.square, fill='black', outline=color,width=2)
         return tkid
     def coin(self, x, y, color='#FBE883'):
-        x = x * self.square + self.suqare/3
-        y = y * self.square + self.suqare/3
-        tkid = self.create_oval(x, y, x + self.square*2/3, y + self.square*2/3, fill=color, outline=color,width=1)
+        x = x * self.square + self.square/3
+        y = y * self.square + self.square/3
+        tkid = self.create_oval(x, y, x + self.square*1/3, y + self.square*1/3, fill=color, outline=color,width=1)
         return tkid
 
 class GUI(object):
@@ -70,7 +70,7 @@ class GUI(object):
         self.buttonhandler  = None
 
     def hide(self, id):
-        self.maze_frame.itemconfig(id, state=HIDDEN)
+        self.grid.itemconfig(id, state=HIDDEN)
 
     def enable_buttons(self, enabled=True):
         if enabled:
@@ -96,8 +96,6 @@ class GUI(object):
         y = y*self.grid.square
         self.grid.coords(creature.tkid, x, y, x+self.grid.square, y+self.grid.square)
 
-    def coin
-
     def run(self, game=None):
         if game:
             for pacman in game.pacmans:
@@ -107,6 +105,10 @@ class GUI(object):
                 maze = game.maze.board
                 for pacman in game.pacmans:
                     self.redraw_creature(pacman)
+                    pos = tuple(pacman.position)
+                    if not game.maze.has_coin(pos):
+                        self.hide(game.coin2tkid[pos])
+
                 sleep(3)
                 print('iteration completed')
         else:

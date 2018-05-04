@@ -62,11 +62,14 @@ class RemoteClient(object):
         self.id = kwargs['id']
         self.game = Game(game_params=game_params)
         self.gui.keyboardhandler = lambda event: self._keyboard_handler(event)
+        self.game.coin2tkid = {}
 
         for i, row in enumerate(self.game.maze.board):
             for j, chr in enumerate(row):
                 if chr == '#':
                     self.gui.grid.wall(i, j)
+                elif chr == '.':
+                    self.game.coin2tkid[(i, j)] = self.gui.grid.coin(i, j)
 
         self.creature = _get_creature_by_id(self.game.pacmans, self.id)
 
