@@ -5,8 +5,6 @@ from utils import getch, clear
 from game import Game
 from creature import Creature
 
-stopit = [False]
-
 class Input(Thread):
     def __init__(self, creature, send_msg_all):
         Thread.__init__(self)
@@ -46,14 +44,13 @@ class Output(Thread):
 
 
 def _get_creature_by_id(ls, idd):
-    for ghost in ls:
+    for pacman in ls:
         if idd == idd:
-            return ghost
+            return pacman
     return None
 
 
 def _move_creature(creat, chr):
-    # print("_move_creature", id(creat))
     if chr == 'w':
         creat.move_up()
     elif chr == 'd':
@@ -66,10 +63,11 @@ def _move_creature(creat, chr):
 
 @Pyro4.expose
 class RemoteClient(object):
-    def __init__(self):
+    def __init__(self, gui):
         self.x, self.y = 0, 0
         self.listeners = []
         self.game = None
+        self.gui = gui
 
     def change_direction(self, direction):
         print(direction)
@@ -84,8 +82,11 @@ class RemoteClient(object):
         if idd == 0:
             _move_creature(self.game.pacman, char)
         else:
-            _move_creature(_get_creature_by_id(self.game.ghosts, idd), char)
+            _move_creature(_get_creature_by_id(self.game.pacmans, idd), char)
 
+    def _keyboard_handler(self, event):
+        _move_creature(self.creature, repr(event.char))
+        self.send_msg_all(repr(event.char))
 
     def send_msg_all(self, char):
         for listener in self.listeners:
@@ -97,10 +98,15 @@ class RemoteClient(object):
 
     def start(self, **kwargs):
         game_params = kwargs['game_params']
-        # print(game_params)
-        # print(kwargs['id'])
         self.id = kwargs['id']
         self.game = Game(game_params=game_params)
+        self.gui.keyboardhandler = lambda event: self._keyboard_handler(event)
+
+        for i, row in enumerate(self.game.maze.board):
+            for j, chr in enumerate(row):
+                if chr == '#':
+                    self.gui.grid.wall(i, j)
+
         print('Started')
         for listener in self.listeners:
             with Pyro4.Proxy(listener) as obj:
@@ -108,11 +114,4 @@ class RemoteClient(object):
         print('Sent')
         out = Output(self.game)
 
-        creat = None
-        if self.id == 0:
-            creat = self.game.pacman
-        else:
-            creat = _get_creature_by_id(self.game.ghosts, self.id)
-        inp = Input(creat, lambda c: self.send_msg_all(c))
-        out.start()
-        inp.start()
+        self.creature = _get_creature_by_id(self.game.pacmans, self.id)

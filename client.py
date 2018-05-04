@@ -54,7 +54,7 @@ if __name__ == '__main__':
     ip = socket.gethostbyname(socket.gethostname())
     daemon = Pyro4.Daemon(ip)
 
-    client = RemoteClient()
+    client = RemoteClient(gui)
     client_uri = daemon.register(client)
     PyroClientThread(daemon).start()
 
@@ -71,20 +71,20 @@ if __name__ == '__main__':
     def start_game():
         room_name = ip
         room = gameserver.start_room(room_name)
-        ghosts_count = len(room.ghosts)
+        pacmans_count = len(room.pacmans_uri)
         height, width, mp, spawns = load_map()
         params = {
             "width": width,
             "height": height,
             "map": mp,
-            "pacman": (0, spawns[0]),
-            "ghosts": [(i, point) for (i, point)  in enumerate(spawns[1:ghosts_count+1], 1)]
+            "pacmans": [(i, point) for (i, point)  in enumerate(spawns[:pacmans_count])]
         }
-        counter = 1
-        for ghost_client_uri in room.ghosts:
-            with Pyro4.Proxy(ghost_client_uri) as ghost_client:
-                ghost_client.start(game_params=params, id=counter)
-                counter += 1
+        counter = 0
+        for pacman_client_uri in room.pacmans_uri:
+            if pacman_client_uri != client_uri:
+                with Pyro4.Proxy(pacman_client_uri) as pacman_client:
+                    pacman_client.start(game_params=params, id=counter)
+            counter += 1
         client.start(game_params=params, id=0)
 
     gui.buttonhandler.assign_handler('start_game', start_game)
@@ -102,11 +102,11 @@ if __name__ == '__main__':
             room_name = gui.listbox.get(gui.listbox.curselection()[0])
             print('connecting to', room_name)
             room = gameserver.connect_to_room(room_name, client_uri)
-            for ghost_client_uri in room.ghosts:
-                if ghost_client_uri != client_uri:
-                    with Pyro4.Proxy(ghost_client_uri) as ghost_client:
-                        ghost_client.append_listener(client_uri)
-                        client.append_listener(ghost_client_uri)
+            for pacman_client_uri in room.pacmans_uri:
+                if pacman_client_uri != client_uri:
+                    with Pyro4.Proxy(pacman_client_uri) as pacman_client:
+                        pacman_client.append_listener(client_uri)
+                        client.append_listener(pacman_client_uri)
             with Pyro4.Proxy(room.pacman_uri) as pacman_client:
                 pacman_client.append_listener(client_uri)
                 client.append_listener(room.pacman_uri)

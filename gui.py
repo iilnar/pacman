@@ -49,14 +49,16 @@ class GUI(object):
         self.update_rooms=Button(score_frame, text='Update rooms', command = lambda: self.buttonhandler.button_clicked('update_rooms'))
         self.update_rooms.pack()
 
-        self.maze_frame.bind('<Button-1>', lambda x: self.maze_frame.focus_set())
-        self.maze_frame.bind('<Key>', lambda x: print('pressed', x))
+        self.keyboardhandler = lambda x: print(x)
+        self.maze_frame.focus_set()
+        self.maze_frame.bind('<Key>', lambda event: self.keyboardhandler(event))
 
         self.statuslabel=Label(score_frame, width=20)
         self.statuslabel.pack(side=BOTTOM)
         self.grid.pack()
         self.maze_frame.pack(side=LEFT)
         score_frame.pack(side=RIGHT, fill=BOTH)
+
         self.buttonhandler  = None
 
     def enable_buttons(self, enabled=True):
@@ -81,22 +83,17 @@ class GUI(object):
             while self.game.in_progress:
                 self.game.iteration()
                 maze = self.game.maze.board
-                ghosts = self.game.ghosts
-                pacman = self.game.pacman
-                # print("run", id(ghosts))
-                # for ghost in ghosts:
-                #     maze[ghost.position[0]][ghost.position[1]] = 'G'
-                # maze[pacman.position[0]][pacman.position[1]] = 'P'
+                pacmans = self.game.pacmans
+                
                 x,y =  pacman.position
                 x = x*self.grid.square
                 y = y*self.grid.square
-                self.grid.coords(pacman.id, x, y, x+self.grid.square, y+self.grid.square)
 
-                for ghost in ghosts:
-                    x,y =  ghost.position
+                for pacman in pacmans:
+                    x,y =  pacman.position
                     x = x*self.grid.square
                     y = y*self.grid.square
-                    self.grid.coords(ghost.id, x, y, x+self.grid.square, y+self.grid.square)
+                    self.grid.coords(pacman.id, x, y, x+self.grid.square, y+self.grid.square)
 
                 sleep(0.1)
             # stopit[0] = True
