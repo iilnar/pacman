@@ -19,10 +19,20 @@ class MazeGrid(Canvas):
         # self.create_line(square, 0 , square, real_height,width=2, fill='#001F77')
         # self.create_line(0, 0, 0, real_height, fill='#001F77')
         # self.create_line(0, y * square, real_width, y * square, fill='#001F77')
+    def normalize(self, value):
+        return value * self.square
     def wall(self, x, y, color='#001F77'):
         x = x * self.square
         y = y * self.square
-        self.create_rectangle(x, y, x + self.square, y + self.square, fill='black', outline=color,width=2)
+        tkid = self.create_rectangle(x, y, x + self.square, y + self.square, fill='black', outline=color,width=2)
+        return tkid
+    def coin(self, x, y, color='#FBE883'):
+        x = x * self.square + self.suqare/3
+        y = y * self.square + self.suqare/3
+        tkid = self.create_oval(x, y, x + self.square*2/3, y + self.square*2/3, fill=color, outline=color,width=1)
+        return tkid
+    def hide(self, gui_object):
+        gui_object.config(state=HIDDEN)
 
 class GUI(object):
     def __init__(self,width=25, height=20):
@@ -85,6 +95,7 @@ class GUI(object):
         y = y*self.grid.square
         self.grid.coords(creature.tkid, x, y, x+self.grid.square, y+self.grid.square)
 
+    def coin
 
     def run(self, game=None):
         if game:
